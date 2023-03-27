@@ -10,9 +10,11 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install Angular CLI
         run: npm install -g @angular/cli
+      - name: Install Angular CLI ghpages
+        run: npm install -g angular-cli-ghpages
       - name: Install dependencies
         run: npm install
       - name: Build and deploy
         run: |
-          ng build --prod --base-href="https://jst4rk.github.io/gw-ui/"
+          ng build --base-href="https://jst4rk.github.io/gw-ui/"
           ngh --dir=dist/gw-ui
