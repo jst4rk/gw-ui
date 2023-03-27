@@ -1,3 +1,6 @@
+<div class="loading-container">
+  <mat-progress-bar *ngIf="dataSource.loading$ | async" mode="indeterminate"></mat-progress-bar>
+</div>
 <div class="flex mx-10 my-5">
   <button class="ml-auto" mat-flat-button color="primary" (click)="openAddEditDialog()">
     <mat-icon aria-hidden="false" aria-label="Add New gateway Icon" fontIcon="add"></mat-icon>

@@ -68,13 +68,12 @@ export class DevicesComponent {
     this.dataSource.loadDevices(this.params);
   }
 
-  openAddEditDialog(gatewayData?: Device) {
+  openAddEditDialog(deviceData?: Device) {
     const matDialogRef = this._dialog.open(AddEditDeviceComponent, {
       width: '550px',
       disableClose: true,
       data: {
-        devices: this.devices,
-        gatewayData,
+        deviceData
       },
     });
 
