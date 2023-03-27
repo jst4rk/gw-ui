@@ -17,6 +17,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from "@angular/material/select";
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { ConfirmDialogModule } from '../common/components/confirm-dialog/confirm-dialog.module';
 import { GatewaysComponent } from './gateways.component';
@@ -54,6 +55,7 @@ const GatewaysRoutes: Route[] = [
     MatSnackBarModule,
     MatFormFieldModule,
     MatProgressBarModule,
+    MatProgressSpinnerModule,
   ],
   providers: [GatewaysService, DevicesService]
 })

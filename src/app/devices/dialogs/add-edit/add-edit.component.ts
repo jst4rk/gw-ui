@@ -1,10 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { catchError, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, Subject, takeUntil, throwError } from 'rxjs';
 
 import {
   isValid,
@@ -19,10 +19,12 @@ import { DevicesService } from '../../services/devices.service';
   templateUrl: './add-edit.component.html',
   styleUrls: ['./add-edit.component.scss']
 })
-export class AddEditDeviceComponent implements OnInit {
+export class AddEditDeviceComponent implements OnInit, OnDestroy {
+  private loadingSubject = new BehaviorSubject<boolean>(false);
+  private _unsubscribeAll: Subject<any> = new Subject<any>();
   addEditForm!: FormGroup;
-  loading!: boolean;
   selectedPeriphericalDevices: string[] = [];
+
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: { deviceData: Device },
@@ -31,6 +33,8 @@ export class AddEditDeviceComponent implements OnInit {
     private _dialogRef: MatDialogRef<AddEditDeviceComponent>,
     private _devicesService: DevicesService,
   ) {}
+
+  public loading$ = this.loadingSubject.asObservable();
 
   get isEditMode() {
     return !isEmptyOrNil(this.data.deviceData);
@@ -42,7 +46,6 @@ export class AddEditDeviceComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.loading = false;
     this.addEditForm = this._fb.group({
       uid: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
       vendor: ['', Validators.required],
@@ -53,6 +56,15 @@ export class AddEditDeviceComponent implements OnInit {
     if (this.isEditMode) {
       this.addEditForm.patchValue(this.data.deviceData);
     }
+
+    this.loading$.pipe(takeUntil(this._unsubscribeAll)).subscribe((loading) => {
+      loading ? this.addEditForm.disable() : this.addEditForm.enable();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this._unsubscribeAll.next(null);
+    this._unsubscribeAll.complete()
   }
 
   openSnackBar(message: string, action = 'OK') {
@@ -66,7 +78,7 @@ export class AddEditDeviceComponent implements OnInit {
     }
 
     const formData = this.addEditForm.value;
-    this.loading = true;
+    this.loadingSubject.next(true);
     switch (this.isEditMode) {
       case true:
         this._devicesService.edit(this.data.deviceData._id, formData)
@@ -76,7 +88,7 @@ export class AddEditDeviceComponent implements OnInit {
           }))
           .subscribe(() => {
             this.openSnackBar('Device Edited Successfully');
-            this.loading = false;
+            this.loadingSubject.next(false);
             this._dialogRef.close('edit');
           });
         break;
@@ -89,7 +101,7 @@ export class AddEditDeviceComponent implements OnInit {
           }))
           .subscribe(() => {
             this.openSnackBar('Device Created Successfully');
-            this.loading = false;
+            this.loadingSubject.next(false);
             this._dialogRef.close('add');
           });
         break;

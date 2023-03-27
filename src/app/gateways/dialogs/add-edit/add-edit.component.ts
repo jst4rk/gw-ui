@@ -1,12 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { find } from 'lodash-es';
-import { catchError, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, Subject, takeUntil, throwError } from 'rxjs';
 
 import { MAX_DEVICE_ALLOWED } from '../../../common';
 
@@ -25,9 +25,10 @@ import { GatewaysService } from '../../services/gateways.service';
   templateUrl: './add-edit.component.html',
   styleUrls: ['./add-edit.component.scss']
 })
-export class AddEditGatewayComponent implements OnInit {
+export class AddEditGatewayComponent implements OnInit, OnDestroy {
+  private loadingSubject = new BehaviorSubject<boolean>(false);
+  private _unsubscribeAll: Subject<any> = new Subject<any>();
   addEditForm!: FormGroup;
-  loading!: boolean;
   selectedPeriphericalDevices: string[] = [];
 
   constructor(
@@ -37,6 +38,8 @@ export class AddEditGatewayComponent implements OnInit {
     private _dialogRef: MatDialogRef<AddEditGatewayComponent>,
     private _gatewaysService: GatewaysService,
   ) {}
+
+  public loading$ = this.loadingSubject.asObservable();
 
   get isEditMode() {
     return !isEmptyOrNil(this.data.gatewayData);
@@ -55,7 +58,6 @@ export class AddEditGatewayComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loading = false;
     this.addEditForm = this._fb.group({
       name: ['', Validators.required],
       serialId: ['', Validators.required],
@@ -71,6 +73,15 @@ export class AddEditGatewayComponent implements OnInit {
         ...restGatewayData
       });
     }
+
+    this.loading$.pipe(takeUntil(this._unsubscribeAll)).subscribe((loading) => {
+      loading ? this.addEditForm.disable() : this.addEditForm.enable();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this._unsubscribeAll.next(null);
+    this._unsubscribeAll.complete()
   }
 
   openSnackBar(message: string, action = 'OK') {
@@ -84,7 +95,7 @@ export class AddEditGatewayComponent implements OnInit {
     }
 
     const formData = this.addEditForm.value;
-    this.loading = true;
+    this.loadingSubject.next(true);
     switch (this.isEditMode) {
       case true:
         this._gatewaysService.edit(this.data.gatewayData._id, formData)
@@ -94,7 +105,7 @@ export class AddEditGatewayComponent implements OnInit {
           }))
           .subscribe(() => {
             this.openSnackBar('Gateway Edited Successfully');
-            this.loading = false;
+            this.loadingSubject.next(false);
             this._dialogRef.close('edit');
           });
         break;
@@ -107,7 +118,7 @@ export class AddEditGatewayComponent implements OnInit {
           }))
           .subscribe(() => {
             this.openSnackBar('Gateway Created Successfully');
-            this.loading = false;
+            this.loadingSubject.next(false);
             this._dialogRef.close('add');
           });
         break;

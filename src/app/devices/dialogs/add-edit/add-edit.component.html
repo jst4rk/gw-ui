@@ -54,7 +54,8 @@
   </div>
 
   <div class="dialog-actions" mat-dialog-actions>
-    <button mat-button mat-dialog-close>Cancel</button>
-    <button mat-flat-button color="primary" (click)="addSaveDevice()">{{ isEditMode ? 'Save' : 'Add'}}</button>
+    <button [disabled]="loading$ | async" mat-button mat-dialog-close>Cancel</button>
+    <button [disabled]="loading$ | async" mat-flat-button color="primary" (click)="addSaveDevice()">{{ isEditMode ? 'Save' : 'Add'}}</button>
   </div>
+  <mat-progress-bar *ngIf="loading$ | async" mode="indeterminate"></mat-progress-bar>
 </form>
