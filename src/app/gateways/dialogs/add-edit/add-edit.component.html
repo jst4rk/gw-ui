@@ -1,0 +1,71 @@
+<form [formGroup]="addEditForm">
+  <h1 mat-dialog-title>{{ isEditMode ? 'Edit' : 'Add' }} Gateway</h1>
+
+  <div class="flex flex-col px-6">
+    <div class="w-full flex gap-6 flex-row">
+      <mat-form-field class="w-1/2" floatLabel="always">
+        <mat-label>Serial ID</mat-label>
+        <input matInput formControlName="serialId">
+        <mat-error
+          *ngIf="(controls.serialId.dirty || controls.serialId.touched) && controls.serialId.hasError('required')"
+        >
+          The Serial ID field is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="w-1/2" floatLabel="always">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name">
+        <mat-error
+          *ngIf="(controls.name.dirty || controls.name.touched) && controls.name.hasError('required')"
+        >
+          The Name field is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="mt-4 w-full flex gap-6 flex-row">
+      <mat-form-field class="w-1/2" floatLabel="always">
+        <mat-label>IP</mat-label>
+        <input matInput formControlName="ipv4Address">
+        <mat-error
+          *ngIf="(controls.ipv4Address.dirty || controls.ipv4Address.touched) && controls.ipv4Address.hasError('required')"
+        >
+          The IP field is required
+        </mat-error>
+        <mat-error
+          *ngIf="(controls.ipv4Address.dirty || controls.ipv4Address.touched) && controls.ipv4Address.hasError('invalidIPv4')"
+        >
+          The IP field has an invalid format
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="w-1/2" floatLabel="always">
+        <mat-label>Peripherical Devices</mat-label>
+        <mat-select #peripheralDevicesRef formControlName="peripheralDevices" multiple (selectionChange)="checkLimit($event)">
+          <mat-select-trigger>
+            {{ getDeviceLabel(controls.peripheralDevices.value?.[0]) | titlecase}}
+            <span *ngIf="(controls.peripheralDevices.value?.length || 0) > 1">
+              (+{{(controls.peripheralDevices.value?.length || 0) - 1}} {{controls.peripheralDevices.value?.length === 2 ? 'other' : 'others'}})
+            </span>
+          </mat-select-trigger>
+          <mat-option
+            *ngFor="let device of peripheralDevices"
+            [value]="device._id"
+            [disabled]="disableOption(device._id)"
+          >
+            {{ (device.vendor | titlecase)+' - '+device.uid }}
+          </mat-option>
+        </mat-select>
+        <mat-hint>
+          Max: {{ maxDevices }}
+        </mat-hint>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="dialog-actions" mat-dialog-actions>
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-flat-button color="primary" (click)="addSaveGateway()">{{ isEditMode ? 'Save' : 'Add'}}</button>
+  </div>
+</form>

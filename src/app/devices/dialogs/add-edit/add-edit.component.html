@@ -1,0 +1,60 @@
+<form [formGroup]="addEditForm">
+  <h1 mat-dialog-title>{{ isEditMode ? 'Edit' : 'Add' }} Gateway</h1>
+
+  <div class="flex flex-col px-6">
+    <div class="w-full flex gap-6 flex-row">
+      <mat-form-field class="w-1/2" floatLabel="always">
+        <mat-label>UID</mat-label>
+        <input matInput formControlName="uid">
+        <mat-error
+          *ngIf="(controls.uid.dirty || controls.uid.touched) && controls.uid.hasError('required')"
+        >
+          The UID field is required
+        </mat-error>
+        <mat-error
+          *ngIf="(controls.uid.dirty || controls.uid.touched) && controls.uid.hasError('pattern')"
+        >
+          Only numbers are allowed
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="w-1/2" floatLabel="always">
+        <mat-label>Vendor</mat-label>
+        <input matInput formControlName="vendor">
+        <mat-error
+          *ngIf="(controls.vendor.dirty || controls.vendor.touched) && controls.vendor.hasError('required')"
+        >
+          The Vendor field is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="mt-4 w-full flex gap-6 flex-row">
+      <mat-form-field class="w-1/2" floatLabel="always">
+        <mat-label>Created Date</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="createdAt">
+        <mat-hint>MM/DD/YYYY</mat-hint>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        <mat-error
+          *ngIf="(controls.createdAt.dirty || controls.createdAt.touched) && controls.createdAt.hasError('required')"
+        >
+          The Created Date field is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="w-1/2" floatLabel="always">
+        <mat-label>Status</mat-label>
+        <mat-select #peripheralDevicesRef formControlName="status">
+          <mat-option value="online">Online</mat-option>
+          <mat-option value="offline">Offline</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="dialog-actions" mat-dialog-actions>
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-flat-button color="primary" (click)="addSaveDevice()">{{ isEditMode ? 'Save' : 'Add'}}</button>
+  </div>
+</form>
