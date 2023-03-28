@@ -4,7 +4,7 @@ This project is a simple UI for the Gateway Management REST Service from this [r
 
 
 ## Live UI Hosted with Github Pages
-You can access the Angular apllication [here](https://jst4rk.github.io/gw-ui/).
+You can access the Angular aplication [here](https://jst4rk.github.io/gw-ui/).
 
 ## Installation
 
