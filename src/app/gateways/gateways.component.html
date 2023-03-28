@@ -32,11 +32,15 @@
         <ng-container matColumnDef="peripheralDevices">
           <th mat-header-cell *matHeaderCellDef>Peripherical Devices</th>
           <td mat-cell *matCellDef="let row">
-            {{ (row.peripheralDevices[0].vendor | titlecase)+' - '+row.peripheralDevices[0].uid }}
-            <!-- Here we can raise a custom tooltip with the uid, vendor or any other info that we want to show -->
-            <span *ngIf="(row.peripheralDevices.length || 0) > 1">
-              (+{{(row.peripheralDevices.length || 0) - 1}} {{row.peripheralDevices.length === 2 ? 'other' : 'others'}})
-            </span>
+            <ng-container *ngIf="row.peripheralDevices.length; else noDevices">
+              {{ (row.peripheralDevices[0].vendor | titlecase)+' - '+row.peripheralDevices[0].uid }}
+              <!-- Here we can raise a custom tooltip with the uid, vendor or any other info that we want to show -->
+              <span *ngIf="(row.peripheralDevices.length || 0) > 1">
+                (+{{(row.peripheralDevices.length || 0) - 1}} {{row.peripheralDevices.length === 2 ? 'other' : 'others'}})
+              </span>
+            </ng-container>
+
+            <ng-template #noDevices>--</ng-template>
           </td>
         </ng-container>
   
